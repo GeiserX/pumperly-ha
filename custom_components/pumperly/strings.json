@@ -1,0 +1,61 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pumperly Instance",
+        "description": "Enter the URL of your Pumperly instance. Use https://pumperly.com for the public instance.",
+        "data": {
+          "url": "URL"
+        }
+      },
+      "location": {
+        "title": "Location",
+        "description": "Select the location to search for fuel stations around.",
+        "data": {
+          "location": "Location"
+        }
+      },
+      "fuel_types": {
+        "title": "Fuel Types",
+        "description": "Select the fuel types you want to track prices for.",
+        "data": {
+          "fuel_types": "Fuel types"
+        }
+      },
+      "radius": {
+        "title": "Search Radius",
+        "description": "How far to search for stations (in kilometers).",
+        "data": {
+          "radius_km": "Radius"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the Pumperly instance. Check the URL and try again.",
+      "unknown": "An unexpected error occurred.",
+      "no_fuel_types": "Select at least one fuel type."
+    },
+    "abort": {
+      "already_configured": "This Pumperly location is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "cheapest": {
+        "name": "Cheapest {fuel}"
+      },
+      "nearest": {
+        "name": "Nearest {fuel}"
+      },
+      "average": {
+        "name": "Average {fuel}"
+      },
+      "total_stations": {
+        "name": "Total stations"
+      },
+      "total_prices": {
+        "name": "Total price records"
+      }
+    }
+  }
+}
