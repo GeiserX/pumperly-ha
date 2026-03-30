@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Pumperly Instance",
-        "description": "Enter the URL of your Pumperly instance. Use https://pumperly.com for the public instance.",
+        "description": "Enter the URL of your Pumperly instance. Use {public_url} for the public instance.",
         "data": {
           "url": "URL"
         }

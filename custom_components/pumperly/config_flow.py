@@ -81,6 +81,7 @@ class PumperlyConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_URL, default=DEFAULT_URL): TextSelector(),
                 }
             ),
+            description_placeholders={"public_url": "pumperly.com"},
             errors=errors,
         )
 
