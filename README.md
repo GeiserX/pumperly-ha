@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/banner.svg" alt="Pumperly for Home Assistant banner" width="900"/>
+</p>
+
 # Pumperly Fuel Prices for Home Assistant
 
 [![HACS Validation](https://github.com/GeiserX/pumperly-ha/actions/workflows/validate.yml/badge.svg)](https://github.com/GeiserX/pumperly-ha/actions/workflows/validate.yml)
