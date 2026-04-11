@@ -5,6 +5,8 @@
 # Pumperly Fuel Prices for Home Assistant
 
 [![HACS Validation](https://github.com/GeiserX/pumperly-ha/actions/workflows/validate.yml/badge.svg)](https://github.com/GeiserX/pumperly-ha/actions/workflows/validate.yml)
+[![Tests](https://github.com/GeiserX/pumperly-ha/actions/workflows/tests.yml/badge.svg)](https://github.com/GeiserX/pumperly-ha/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/GeiserX/pumperly-ha/graph/badge.svg)](https://codecov.io/gh/GeiserX/pumperly-ha)
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
