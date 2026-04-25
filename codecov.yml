@@ -23,17 +23,9 @@ comment:
   require_head: true
 
 ignore:
-  - "**/__pycache__/**"
-  - "dist/**"
-  - "build/**"
-  - ".venv/**"
-  - "venv/**"
-  - "coverage/**"
-  - "**/test_*.py"
-  - "**/*_test.py"
-  - "**/conftest.py"
   - "tests/**"
   - "test/**"
+  - "**/*.test.*"
+  - "**/*.spec.*"
   - "setup.py"
-  - "setup.cfg"
-  - "**/*.config.*"
+  - "conftest.py"
