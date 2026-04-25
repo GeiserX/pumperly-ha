@@ -15,6 +15,9 @@ from custom_components.pumperly.api import (
 )
 
 
+# --- Static method tests ---
+
+
 def test_compute_bbox() -> None:
     """Test bounding box computation."""
     bbox = PumperlyApiClient._compute_bbox(38.0, -1.0, 10.0)
@@ -29,7 +32,9 @@ def test_compute_bbox_symmetry() -> None:
     lat, lon = 40.0, -3.0
     bbox = PumperlyApiClient._compute_bbox(lat, lon, 5.0)
     min_lon, min_lat, max_lon, max_lat = bbox
-    assert pytest.approx(max_lat - lat, abs=0.01) == pytest.approx(lat - min_lat, abs=0.01)
+    assert pytest.approx(max_lat - lat, abs=0.01) == pytest.approx(
+        lat - min_lat, abs=0.01
+    )
 
 
 def test_haversine_zero_distance() -> None:
@@ -49,6 +54,32 @@ def test_haversine_commutative() -> None:
     d1 = PumperlyApiClient._haversine(38.0, -1.0, 40.0, 2.0)
     d2 = PumperlyApiClient._haversine(40.0, 2.0, 38.0, -1.0)
     assert d1 == pytest.approx(d2, abs=0.001)
+
+
+def test_url_trailing_slash_stripped() -> None:
+    """Test that trailing slashes are stripped from URL."""
+    import aiohttp
+
+    session = aiohttp.ClientSession
+    # Can't create real session outside async, just test the constructor logic
+    # by checking the mock approach
+    from unittest.mock import MagicMock
+
+    mock_session = MagicMock()
+    client = PumperlyApiClient(mock_session, "https://pumperly.com/")
+    assert client._base_url == "https://pumperly.com"
+
+
+def test_url_no_trailing_slash() -> None:
+    """Test URL without trailing slash is preserved."""
+    from unittest.mock import MagicMock
+
+    mock_session = MagicMock()
+    client = PumperlyApiClient(mock_session, "https://pumperly.com")
+    assert client._base_url == "https://pumperly.com"
+
+
+# --- Async HTTP tests ---
 
 
 @pytest.mark.asyncio
@@ -150,7 +181,9 @@ async def test_nearest_stations_uses_nearest_endpoint() -> None:
     async with TestServer(app) as server:
         async with ClientSession() as session:
             client = PumperlyApiClient(session, str(server.make_url("")))
-            stations = await client.async_get_nearest_stations(38.0, -1.0, 10.0, "B7", 5)
+            stations = await client.async_get_nearest_stations(
+                38.0, -1.0, 10.0, "B7", 5
+            )
             assert len(stations) == 1
             assert stations[0]["properties"]["price"] == 1.3
 
@@ -169,7 +202,7 @@ async def test_nearest_stations_fallback_to_bbox() -> None:
                 "features": [
                     {
                         "geometry": {"coordinates": [-1.0, 38.0]},
-                        "properties": {"price": 1.5},
+                        "properties": {"price": 1.5, "distance_km": 0.5},
                     }
                 ]
             }
@@ -181,7 +214,9 @@ async def test_nearest_stations_fallback_to_bbox() -> None:
     async with TestServer(app) as server:
         async with ClientSession() as session:
             client = PumperlyApiClient(session, str(server.make_url("")))
-            stations = await client.async_get_nearest_stations(38.0, -1.0, 10.0, "B7", 5)
+            stations = await client.async_get_nearest_stations(
+                38.0, -1.0, 10.0, "B7", 5
+            )
             assert len(stations) == 1
 
 
@@ -200,3 +235,234 @@ async def test_http_500_raises() -> None:
             client = PumperlyApiClient(session, str(server.make_url("")))
             with pytest.raises(PumperlyError):
                 await client.async_get_config()
+
+
+@pytest.mark.asyncio
+async def test_nearest_endpoint_returns_list_directly() -> None:
+    """Test nearest endpoint returning a list instead of GeoJSON object."""
+    app = Application()
+
+    async def handle_nearest(request: Request) -> Response:
+        return json_response(
+            [
+                {
+                    "geometry": {"coordinates": [-1.0, 38.0]},
+                    "properties": {"price": 1.3},
+                }
+            ]
+        )
+
+    app.router.add_get("/api/stations/nearest", handle_nearest)
+
+    async with TestServer(app) as server:
+        async with ClientSession() as session:
+            client = PumperlyApiClient(session, str(server.make_url("")))
+            stations = await client.async_get_nearest_stations(
+                38.0, -1.0, 10.0, "B7", 5
+            )
+            assert len(stations) == 1
+
+
+@pytest.mark.asyncio
+async def test_nearest_endpoint_non_list_features() -> None:
+    """Test nearest endpoint where features is not a list."""
+    app = Application()
+
+    async def handle_nearest(request: Request) -> Response:
+        return json_response({"features": "not_a_list"})
+
+    app.router.add_get("/api/stations/nearest", handle_nearest)
+
+    async with TestServer(app) as server:
+        async with ClientSession() as session:
+            client = PumperlyApiClient(session, str(server.make_url("")))
+            stations = await client.async_get_nearest_stations(
+                38.0, -1.0, 10.0, "B7", 5
+            )
+            assert stations == []
+
+
+@pytest.mark.asyncio
+async def test_fallback_bbox_404_returns_empty() -> None:
+    """Test fallback bbox query returns empty when stations endpoint returns 404."""
+    app = Application()
+
+    async def handle_nearest(request: Request) -> Response:
+        return Response(status=404)
+
+    async def handle_stations(request: Request) -> Response:
+        return Response(status=404)
+
+    app.router.add_get("/api/stations/nearest", handle_nearest)
+    app.router.add_get("/api/stations", handle_stations)
+
+    async with TestServer(app) as server:
+        async with ClientSession() as session:
+            client = PumperlyApiClient(session, str(server.make_url("")))
+            stations = await client.async_get_nearest_stations(
+                38.0, -1.0, 10.0, "B7", 5
+            )
+            assert stations == []
+
+
+@pytest.mark.asyncio
+async def test_fallback_bbox_non_dict_result() -> None:
+    """Test fallback bbox query with non-dict result returns empty."""
+    app = Application()
+
+    async def handle_nearest(request: Request) -> Response:
+        return Response(status=404)
+
+    async def handle_stations(request: Request) -> Response:
+        return json_response("not a dict")
+
+    app.router.add_get("/api/stations/nearest", handle_nearest)
+    app.router.add_get("/api/stations", handle_stations)
+
+    async with TestServer(app) as server:
+        async with ClientSession() as session:
+            client = PumperlyApiClient(session, str(server.make_url("")))
+            stations = await client.async_get_nearest_stations(
+                38.0, -1.0, 10.0, "B7", 5
+            )
+            assert stations == []
+
+
+@pytest.mark.asyncio
+async def test_fallback_bbox_non_list_features() -> None:
+    """Test fallback bbox query with non-list features returns empty."""
+    app = Application()
+
+    async def handle_nearest(request: Request) -> Response:
+        return Response(status=404)
+
+    async def handle_stations(request: Request) -> Response:
+        return json_response({"features": "not_a_list"})
+
+    app.router.add_get("/api/stations/nearest", handle_nearest)
+    app.router.add_get("/api/stations", handle_stations)
+
+    async with TestServer(app) as server:
+        async with ClientSession() as session:
+            client = PumperlyApiClient(session, str(server.make_url("")))
+            stations = await client.async_get_nearest_stations(
+                38.0, -1.0, 10.0, "B7", 5
+            )
+            assert stations == []
+
+
+@pytest.mark.asyncio
+async def test_fallback_bbox_filters_by_radius() -> None:
+    """Test fallback bbox filters out stations beyond radius."""
+    app = Application()
+
+    async def handle_nearest(request: Request) -> Response:
+        return Response(status=404)
+
+    async def handle_stations(request: Request) -> Response:
+        return json_response(
+            {
+                "features": [
+                    {
+                        "geometry": {"coordinates": [-1.0, 38.0]},
+                        "properties": {"price": 1.3},
+                    },
+                    {
+                        "geometry": {"coordinates": [10.0, 50.0]},
+                        "properties": {"price": 1.5},
+                    },
+                ]
+            }
+        )
+
+    app.router.add_get("/api/stations/nearest", handle_nearest)
+    app.router.add_get("/api/stations", handle_stations)
+
+    async with TestServer(app) as server:
+        async with ClientSession() as session:
+            client = PumperlyApiClient(session, str(server.make_url("")))
+            # Small radius should filter out the far-away station
+            stations = await client.async_get_nearest_stations(
+                38.0, -1.0, 1.0, "B7", 5
+            )
+            # The nearby station is at exact coords, distance ~0
+            # The far station at [10,50] is way beyond 1km
+            assert len(stations) == 1
+
+
+@pytest.mark.asyncio
+async def test_fallback_bbox_station_empty_coords() -> None:
+    """Test fallback bbox handles station with empty coordinates array."""
+    app = Application()
+
+    async def handle_nearest(request: Request) -> Response:
+        return Response(status=404)
+
+    async def handle_stations(request: Request) -> Response:
+        return json_response(
+            {
+                "features": [
+                    {
+                        "geometry": {"coordinates": []},
+                        "properties": {"price": 1.3},
+                    },
+                ]
+            }
+        )
+
+    app.router.add_get("/api/stations/nearest", handle_nearest)
+    app.router.add_get("/api/stations", handle_stations)
+
+    async with TestServer(app) as server:
+        async with ClientSession() as session:
+            client = PumperlyApiClient(session, str(server.make_url("")))
+            stations = await client.async_get_nearest_stations(
+                38.0, -1.0, 10.0, "B7", 5
+            )
+            # Station with empty coords doesn't get distance_km set,
+            # so it gets filtered out (distance_km defaults to inf > radius)
+            assert len(stations) == 0
+
+
+@pytest.mark.asyncio
+async def test_fallback_bbox_respects_limit() -> None:
+    """Test fallback bbox respects the limit parameter."""
+    app = Application()
+
+    async def handle_nearest(request: Request) -> Response:
+        return Response(status=404)
+
+    async def handle_stations(request: Request) -> Response:
+        features = []
+        for i in range(10):
+            features.append(
+                {
+                    "geometry": {"coordinates": [-1.0 + i * 0.001, 38.0 + i * 0.001]},
+                    "properties": {"price": 1.3 + i * 0.01},
+                }
+            )
+        return json_response({"features": features})
+
+    app.router.add_get("/api/stations/nearest", handle_nearest)
+    app.router.add_get("/api/stations", handle_stations)
+
+    async with TestServer(app) as server:
+        async with ClientSession() as session:
+            client = PumperlyApiClient(session, str(server.make_url("")))
+            stations = await client.async_get_nearest_stations(
+                38.0, -1.0, 100.0, "B7", 3
+            )
+            assert len(stations) <= 3
+
+
+# --- Exception hierarchy tests ---
+
+
+def test_pumperly_error_is_exception() -> None:
+    """Test PumperlyError inherits from Exception."""
+    assert issubclass(PumperlyError, Exception)
+
+
+def test_pumperly_connection_error_is_pumperly_error() -> None:
+    """Test PumperlyConnectionError inherits from PumperlyError."""
+    assert issubclass(PumperlyConnectionError, PumperlyError)
