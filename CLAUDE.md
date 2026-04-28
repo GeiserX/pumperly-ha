@@ -1,4 +1,4 @@
-# AGENTS.md — Pumperly HA
+# CLAUDE.md — Pumperly HA
 
 ## Project Overview
 
