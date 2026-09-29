@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/banner.svg" alt="Pumperly for Home Assistant banner" width="900"/>
+  <img src="https://raw.githubusercontent.com/GeiserX/pumperly-ha/main/docs/images/banner.svg" alt="Pumperly for Home Assistant banner" width="900"/>
 </p>
 
 # Pumperly Fuel Prices for Home Assistant
