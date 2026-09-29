@@ -18,7 +18,7 @@
 | [Pumperly](https://github.com/GeiserX/Pumperly) | Open-source fuel and EV route planner with real-time prices |
 | [Pumperly-android](https://github.com/GeiserX/Pumperly-android) | Official Android app for Pumperly fuel and EV route planner |
 | [pumperly-mcp](https://github.com/GeiserX/pumperly-mcp) | MCP Server for Pumperly real-time fuel and EV charging prices |
-| [n8n-nodes-pumperly](https://github.com/GeiserX/n8n-nodes-pumperly) | n8n community node for Pumperly fuel and EV charging data |
+| [n8n-nodes-pumperly](https://github.com/GeiserX/n8n-nodes-pumperly) (archived) | n8n community node for Pumperly fuel and EV charging data |
 
 ## Listings
 
