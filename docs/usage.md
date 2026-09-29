@@ -59,7 +59,7 @@ automation:
         entity_id: sensor.pumperly_cheapest_diesel_b7
         below: 1.30
     action:
-      - service: notify.mobile_app
+      - service: notify.mobile_app_<device_id>  # your phone's notify action, see Developer Tools > Actions
         data:
           title: "Cheap Diesel!"
           message: >
