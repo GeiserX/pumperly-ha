@@ -421,8 +421,8 @@ async def test_fallback_bbox_station_empty_coords() -> None:
             stations = await client.async_get_nearest_stations(
                 38.0, -1.0, 10.0, "B7", 5
             )
-            # Station with empty coords doesn't get distance_km set,
-            # so it gets filtered out (distance_km defaults to inf > radius)
+            # Station with empty coords doesn't get distanceKm set,
+            # so it gets filtered out (distanceKm defaults to inf > radius)
             assert len(stations) == 0
 
 

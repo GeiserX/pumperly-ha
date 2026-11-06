@@ -240,7 +240,7 @@ def test_nearest_sensor_native_value() -> None:
         data={"stations": {"B7": [MOCK_STATION_B7, MOCK_STATION_B7_CHEAP]}, "stats": {}}
     )
     sensor = PumperlyNearestSensor(coordinator, "B7")
-    # MOCK_STATION_B7 has distance_km=1.5, MOCK_STATION_B7_CHEAP has 3.0
+    # MOCK_STATION_B7 has distanceKm=1.5, MOCK_STATION_B7_CHEAP has 3.0
     assert sensor.native_value == 1.459
 
 
@@ -286,7 +286,7 @@ def test_nearest_sensor_native_value_empty() -> None:
 
 
 def test_nearest_sensor_native_value_no_distance() -> None:
-    """Test nearest sensor returns None when no station has distance_km."""
+    """Test nearest sensor returns None when no station has distanceKm."""
     coordinator = make_mock_coordinator(
         data={"stations": {"B7": [MOCK_STATION_NO_DISTANCE]}, "stats": {}}
     )
@@ -300,7 +300,7 @@ def test_nearest_sensor_native_value_no_price_on_nearest() -> None:
         data={"stations": {"B7": [MOCK_STATION_NO_PRICE]}, "stats": {}}
     )
     sensor = PumperlyNearestSensor(coordinator, "B7")
-    # Station has distance_km but no price
+    # Station has distanceKm but no price
     assert sensor.native_value is None
 
 
