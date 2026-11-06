@@ -170,7 +170,7 @@ async def test_nearest_stations_uses_nearest_endpoint() -> None:
                 "features": [
                     {
                         "geometry": {"coordinates": [-1.0, 38.0]},
-                        "properties": {"price": 1.3, "distance_km": 1.0},
+                        "properties": {"price": 1.3, "distanceKm": 1.0},
                     }
                 ]
             }
@@ -202,7 +202,7 @@ async def test_nearest_stations_fallback_to_bbox() -> None:
                 "features": [
                     {
                         "geometry": {"coordinates": [-1.0, 38.0]},
-                        "properties": {"price": 1.5, "distance_km": 0.5},
+                        "properties": {"price": 1.5, "distanceKm": 0.5},
                     }
                 ]
             }
@@ -218,6 +218,8 @@ async def test_nearest_stations_fallback_to_bbox() -> None:
                 38.0, -1.0, 10.0, "B7", 5
             )
             assert len(stations) == 1
+            # The fallback writes the same key as /api/stations/nearest
+            assert stations[0]["properties"]["distanceKm"] == 0.0
 
 
 @pytest.mark.asyncio

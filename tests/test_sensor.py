@@ -244,6 +244,40 @@ def test_nearest_sensor_native_value() -> None:
     assert sensor.native_value == 1.459
 
 
+def test_nearest_sensor_reads_api_distance_key() -> None:
+    """Regression #26: /api/stations/nearest returns distanceKm, not distance_km."""
+    api_station = {
+        "type": "Feature",
+        "geometry": {"type": "Point", "coordinates": [4.87703, 52.36982]},
+        "properties": {
+            "id": "5585a70c-2853-432e-9615-069fc105c64e",
+            "name": "Esso Marnixstraat",
+            "fuelType": "E10",
+            "currency": "EUR",
+            "price": 2.489,
+            "reportedAt": "2026-11-06T07:12:28.012Z",
+            "distanceKm": 1.444,
+        },
+    }
+    coordinator = make_mock_coordinator(
+        data={"stations": {"E10": [api_station]}, "stats": {}}
+    )
+    sensor = PumperlyNearestSensor(coordinator, "E10")
+    assert sensor.native_value == 2.489
+    assert sensor.extra_state_attributes["distance_km"] == 1.444
+
+
+@pytest.mark.parametrize(
+    "sensor_cls",
+    [PumperlyCheapestSensor, PumperlyNearestSensor, PumperlyAverageSensor],
+)
+def test_price_sensors_not_monetary_measurement(sensor_cls) -> None:
+    """Regression #26: HA forbids device_class monetary with state_class measurement."""
+    sensor = sensor_cls(make_mock_coordinator(), "B7")
+    assert sensor._attr_state_class == "measurement"
+    assert getattr(sensor, "_attr_device_class", None) is None
+
+
 def test_nearest_sensor_native_value_empty() -> None:
     """Test nearest sensor returns None with no stations."""
     coordinator = make_mock_coordinator(data={"stations": {"B7": []}, "stats": {}})
