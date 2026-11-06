@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
@@ -82,7 +81,7 @@ def _station_extra_attrs(station: dict[str, Any]) -> dict[str, Any]:
         "brand": props.get("brand"),
         "address": props.get("address"),
         "city": props.get("city"),
-        "distance_km": props.get("distance_km"),
+        "distance_km": props.get("distanceKm"),
         "reported_at": props.get("reportedAt"),
         "latitude": lat,
         "longitude": lon,
@@ -103,7 +102,6 @@ class PumperlyCheapestSensor(PumperlyEntity, SensorEntity):
     """Sensor showing the cheapest station price for a fuel type."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_device_class = SensorDeviceClass.MONETARY
 
     def __init__(
         self, coordinator: PumperlyCoordinator, fuel_type: str
@@ -160,7 +158,6 @@ class PumperlyNearestSensor(PumperlyEntity, SensorEntity):
     """Sensor showing the nearest station price for a fuel type."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_device_class = SensorDeviceClass.MONETARY
 
     def __init__(
         self, coordinator: PumperlyCoordinator, fuel_type: str
@@ -182,8 +179,8 @@ class PumperlyNearestSensor(PumperlyEntity, SensorEntity):
         if not stations:
             return None
         nearest = min(
-            (s for s in stations if _station_props(s).get("distance_km") is not None),
-            key=lambda s: _station_props(s)["distance_km"],
+            (s for s in stations if _station_props(s).get("distanceKm") is not None),
+            key=lambda s: _station_props(s)["distanceKm"],
             default=None,
         )
         if nearest is None:
@@ -204,8 +201,8 @@ class PumperlyNearestSensor(PumperlyEntity, SensorEntity):
         if not stations:
             return None
         nearest = min(
-            (s for s in stations if _station_props(s).get("distance_km") is not None),
-            key=lambda s: _station_props(s)["distance_km"],
+            (s for s in stations if _station_props(s).get("distanceKm") is not None),
+            key=lambda s: _station_props(s)["distanceKm"],
             default=None,
         )
         if nearest is None:
@@ -217,7 +214,6 @@ class PumperlyAverageSensor(PumperlyEntity, SensorEntity):
     """Sensor showing the average price across fetched stations."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_device_class = SensorDeviceClass.MONETARY
 
     def __init__(
         self, coordinator: PumperlyCoordinator, fuel_type: str

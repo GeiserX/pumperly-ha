@@ -135,7 +135,7 @@ MOCK_STATION_B7 = {
         "city": "TestCity",
         "price": 1.459,
         "currency": "EUR",
-        "distance_km": 1.5,
+        "distanceKm": 1.5,
         "reportedAt": "2026-01-01T12:00:00Z",
     },
 }
@@ -151,7 +151,7 @@ MOCK_STATION_B7_CHEAP = {
         "city": "CheapCity",
         "price": 1.299,
         "currency": "EUR",
-        "distance_km": 3.0,
+        "distanceKm": 3.0,
         "reportedAt": "2026-01-01T12:00:00Z",
     },
 }
@@ -163,7 +163,7 @@ MOCK_STATION_NO_PRICE = {
         "id": "station-3",
         "name": "No Price Station",
         "brand": "NoBrand",
-        "distance_km": 2.0,
+        "distanceKm": 2.0,
     },
 }
 
@@ -185,7 +185,7 @@ MOCK_STATION_EMPTY_GEOMETRY = {
         "id": "station-5",
         "name": "Empty Geom Station",
         "price": 1.6,
-        "distance_km": 4.0,
+        "distanceKm": 4.0,
     },
 }
 

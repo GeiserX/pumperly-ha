@@ -140,16 +140,16 @@ class PumperlyApiClient:
             )
             if coords and len(coords) >= 2:
                 dist = self._haversine(lat, lon, coords[1], coords[0])
-                feature.setdefault("properties", {})["distance_km"] = round(dist, 2)
+                feature.setdefault("properties", {})["distanceKm"] = round(dist, 2)
 
         features.sort(
-            key=lambda f: f.get("properties", {}).get("distance_km", float("inf"))
+            key=lambda f: f.get("properties", {}).get("distanceKm", float("inf"))
         )
 
         return [
             f
             for f in features[:limit]
-            if f.get("properties", {}).get("distance_km", float("inf")) <= radius_km
+            if f.get("properties", {}).get("distanceKm", float("inf")) <= radius_km
         ]
 
     @staticmethod
